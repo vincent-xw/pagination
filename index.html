@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app" ng-controller="testCtrl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <navtab></navtab>
+</body>
+<script src="//cdn.bootcss.com/angular.js/1.5.9/angular.min.js"></script>
+<script type="text/javascript">
+  var app = angular.module('app', []);
+  app.directive('navtab',function(){
+    return {
+      restrict: 'E',
+      template: '<nav class="text-center">\
+                  <ul class="pagination">\
+                    <li ng-class="{disabled: page.perPage, notAllow: page.perPage}" ><a href="javascript:;" ng-click="gotopage(page.isActive-1)">上一页</a></li>\
+                    <li ng-repeat="data in page.pagination.info" ng-class="{active:page.isActive == data}">\
+                      <a href="javascript:;" ng-bind="data" ng-click="gotopage(data)" ></a>\
+                    </li>\
+                    <li ng-class="{disabled:page.nextPage, notAllow:page.nextPage}"><a href="javascript:;" ng-click="gotopage(page.isActive-0+1)">下一页</a></li>\
+                  </ul>\
+                </nav>',
+      replace: true
+    }
+  });
+  app.controller('testCtrl',['$scope','$injector','pagination',
+  		function($scope,$injector){
+  			$injector.invoke(
+  				function (test,pagination) {
+  					// 获取产品列表
+  					var dataObj = {
+  						"page":1,
+  						"size":1
+  					}
+  					$scope.loadInfo = function(obj){
+  						test.getList(obj).then(function(resp){
+  							$scope.page = pagination(resp.data);
+
+  						});
+  					}
+  					// 执行加载
+  					$scope.loadInfo(dataObj);
+  					// 跳至某页
+  					$scope.gotopage = function(data){
+  						dataObj.page = data;
+  						$scope.loadInfo(dataObj);
+  					};
+  				}
+  			);
+  		}
+  ]);
+  app.factory('pagination',function(){
+        return function (obj){
+          var page = {};
+          if (obj.total == 0) {
+    				page.noSearch = false;
+    			}else{
+    				page.noSearch = true;
+
+    			}
+
+    			page.pagination = {};
+    			page.pagination.length = Math.ceil(obj.total / obj.size);
+
+    			page.perPage = false;
+    			page.nextPage = false;
+
+    			if(obj.page == '1'){
+    				page.perPage = true;
+    			}
+    			if(obj.page == page.pagination.length){
+    				page.nextPage = true;
+    			}
+
+    			page.isActive = obj.page;
+
+    			page.pagination.info = [];
+
+    			if(page.pagination.length > 10){
+    				var upBoundary = parseInt(obj.page) + 4 > 9 ? parseInt(obj.page) + 4 : 9;
+    				upBoundary = upBoundary <= page.pagination.length ? upBoundary : page.pagination.length;
+    				var downBoundary = parseInt(obj.page) - 4 < 1 ? 1 : parseInt(obj.page) - 4;
+    				downBoundary = page.pagination.length - downBoundary >= 9 ? downBoundary : page.pagination.length - 9;
+    				var currentPage = parseInt(obj.page);
+
+    				for(var i = 1; i<= page.pagination.length; i++){
+    					var up = i <= upBoundary && i >= currentPage;
+    					var down = i >= downBoundary && i <= currentPage;
+    					if(up || down){
+
+    						page.pagination.info.push(i);
+
+    					}
+    				}
+    			}else{
+    				for(var i = 1; i<= page.pagination.length; i++){
+
+    					page.pagination.info.push(i);
+
+    				}
+    			}
+
+          return page;
+        }
+
+      })
+      .factory('test', ['$http','checkCode','transformRequest', function ($http,checkCode,transformRequest) {
+
+              return {
+                'getList':function(data){
+                  // 在此填入你们的接口
+                  var url = 'yourInterface'+transformRequest(data);
+
+                  return $http.get(url).then(
+
+                      function(resp){
+
+                        return checkCode(resp);
+
+                      });
+                }
+              };
+
+      }]);
+</script>
+</html>
