@@ -56,57 +56,57 @@
   ]);
   app.factory('pagination',function(){
         return function (obj){
-          var page = {};
-          if (obj.total == 0) {
-    				page.noSearch = false;
-    			}else{
-    				page.noSearch = true;
+        var page = {};
+        if (obj.total == 0) {
+          page.noSearch = false;
+        }else{
+          page.noSearch = true;
 
-    			}
-
-    			page.pagination = {};
-    			page.pagination.length = Math.ceil(obj.total / obj.size);
-
-    			page.perPage = false;
-    			page.nextPage = false;
-
-    			if(obj.page == '1'){
-    				page.perPage = true;
-    			}
-    			if(obj.page == page.pagination.length){
-    				page.nextPage = true;
-    			}
-
-    			page.isActive = obj.page;
-
-    			page.pagination.info = [];
-
-    			if(page.pagination.length > 10){
-    				var upBoundary = parseInt(obj.page) + 4 > 9 ? parseInt(obj.page) + 4 : 9;
-    				upBoundary = upBoundary <= page.pagination.length ? upBoundary : page.pagination.length;
-    				var downBoundary = parseInt(obj.page) - 4 < 1 ? 1 : parseInt(obj.page) - 4;
-    				downBoundary = page.pagination.length - downBoundary >= 9 ? downBoundary : page.pagination.length - 9;
-    				var currentPage = parseInt(obj.page);
-
-    				for(var i = 1; i<= page.pagination.length; i++){
-    					var up = i <= upBoundary && i >= currentPage;
-    					var down = i >= downBoundary && i <= currentPage;
-    					if(up || down){
-
-    						page.pagination.info.push(i);
-
-    					}
-    				}
-    			}else{
-    				for(var i = 1; i<= page.pagination.length; i++){
-
-    					page.pagination.info.push(i);
-
-    				}
-    			}
-
-          return page;
         }
+
+        page.pagination = {};
+        page.pagination.length = obj.total;
+
+        page.perPage = false;
+        page.nextPage = false;
+
+        if(obj.page == '1'){
+          page.perPage = true;
+        }
+        if(obj.page == page.pagination.length){
+          page.nextPage = true;
+        }
+
+        page.isActive = obj.page;
+
+        page.pagination.info = [];
+
+        if(page.pagination.length > 10){
+          var upBoundary = parseInt(obj.page) + 4 > 9 ? parseInt(obj.page) + 4 : 9;
+          upBoundary = upBoundary <= page.pagination.length ? upBoundary : page.pagination.length;
+          var downBoundary = parseInt(obj.page) - 4 < 1 ? 1 : parseInt(obj.page) - 4;
+          downBoundary = page.pagination.length - downBoundary >= 9 ? downBoundary : page.pagination.length - 9;
+          var currentPage = parseInt(obj.page);
+
+          for(var i = 1; i<= page.pagination.length; i++){
+            var up = i <= upBoundary && i >= currentPage;
+            var down = i >= downBoundary && i <= currentPage;
+            if(up || down){
+
+              page.pagination.info.push(i);
+
+            }
+          }
+        }else{
+          for(var i = 1; i<= page.pagination.length; i++){
+
+            page.pagination.info.push(i);
+
+          }
+        }
+
+        return page;
+      }
 
       })
       .factory('test', ['$http','checkCode','transformRequest', function ($http,checkCode,transformRequest) {
